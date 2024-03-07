@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--  -->
+<web-app xmlns:web="http://xmlns.jcp.org/xml/ns/javaee">
+  <display-name>asd</display-name>
+  <servlet>
+    <servlet-name>ServletSimple</servlet-name>
+    <servlet-class>es.us.lsi.dad.ServletSimpleTYH</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>ServletLogin</servlet-name>
+    <servlet-class>es.us.lsi.dad.ServletLogin</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ServletSimple</servlet-name>
+    <url-pattern>/ServletSimpleTYH</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ServletLogin</servlet-name>
+    <url-pattern>/ServletLogin</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>SevletFotoresistor</display-name>
+    <servlet-name>SevletFotoresistor</servlet-name>
+    <servlet-class>es.us.lsi.dad.SevletFotoresistor</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>SevletFotoresistor</servlet-name>
+    <url-pattern>/SevletFotoresistor</url-pattern>
+  </servlet-mapping>
+</web-app>
