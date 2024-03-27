@@ -1,23 +1,21 @@
 package es.us.lsi.dad;
 
-public class Placa1 {
-	
+public class Placas {
 	private int id;
 
-	public int getId() {
+
+	
+	public int getid() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setPlacaid(int id) {
 		this.id = id;
 	}
 
-	public Placa1(int id) {
+	public Placas(int id) {
 		super();
 		this.id = id;
 	}
-	
-
-	
 	
 }

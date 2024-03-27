@@ -19,15 +19,16 @@ import io.vertx.ext.web.handler.BodyHandler;
 
 public class RestServer extends AbstractVerticle {
 
-	private Map<Integer,Placa1> placa1 = new HashMap<Integer, Placa1>();
-	private Map<Integer,Placa2> placa2 = new HashMap<Integer, Placa2>();
-	
+	private Map<Integer,Placas> placas = new HashMap<Integer, Placas>();
+	private Map<Integer,Sensores> sensores = new HashMap<Integer, Sensores>();
+	private Map<Integer,Actuadores> actuadores = new HashMap<Integer, Actuadores>();
 	private Gson gson;
 
 	public void start(Promise<Void> startFuture) {
 		// Creating some synthetic data
 		createSomeData1(5);
 		createSomeData2(5);
+		createSomeData3(5);
 
 		// Instantiating a Gson serialize object using specific date format
 		gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
@@ -48,104 +49,124 @@ public class RestServer extends AbstractVerticle {
 		// handling by /api/users* or /api/users/*
 		
 		//todo los post y put ->que tengan cuerpo
-		router.route("/api/placa1*").handler(BodyHandler.create());
-		router.route("/api/placa2*").handler(BodyHandler.create());
-		router.get("/api/placa1/:id").handler(this::getOneP1);
-		router.get("/api/placa2/:id").handler(this::getOneP2);
-		router.post("/api/placa1").handler(this::addOneP1);
-		router.post("/api/placa2").handler(this::addOneP2);
-		/*
-		router.route("/api/users*").handler(BodyHandler.create());
-		router.get("/api/users").handler(this::getAllWithParams);
-		router.get("/api/users/:userid").handler(this::getOne);
-		router.post("/api/users").handler(this::addOne);
-		router.delete("/api/users/:userid").handler(this::deleteOne);
-		router.put("/api/users/:userid").handler(this::putOne);
-		*/
+		router.route("/api/placas*").handler(BodyHandler.create());
+		router.get("/api/placas/:id").handler(this::getOnePlaca);
+		router.post("/api/placas").handler(this::addOnePlaca);
+		
+		router.route("/api/sensores*").handler(BodyHandler.create());
+		router.get("/api/sensores/:id").handler(this::getOneSensor);
+		router.post("/api/sensores").handler(this::addOneSensor);
+		
+		router.route("/api/actuadores*").handler(BodyHandler.create());
+		router.get("/api/actuadores/:id").handler(this::getOneActuador);
+		router.post("/api/actuadores").handler(this::addOneActuador);
+
 	}
 
 
 	
 	
-	//GET SENSORES PLACA1
-	private void getOneP1(RoutingContext routingContext) {
+	//GET ID PLACAs
+	private void getOnePlaca(RoutingContext routingContext) {
 		
 		int id = Integer.parseInt(routingContext.request().getParam("id"));
 		
-		if (placa1.containsKey(id)) {
+		if (placas.containsKey(id)) {
 			
-			Placa1 ds = placa1.get(id);
+			Placas ds = placas.get(id);
 			
 			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
 					.end(gson.toJson(ds));
 		} else {
-			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(500)
 					.end();
 		}
 	}
 	
-	//GET SENSORES PLACA2
-	private void getOneP2(RoutingContext routingContext) {
+	//GET ID SENSORES
+	private void getOneSensor(RoutingContext routingContext) {
+			
+			int id = Integer.parseInt(routingContext.request().getParam("id"));
+			
+			if (sensores.containsKey(id)) {
+				
+				Sensores ds = sensores.get(id);
+				
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
+						.end(gson.toJson(ds));
+			} else {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(500)
+						.end();
+			}
+		}
+	
+	//GET ID ACTUADORES
+	
+	private void getOneActuador(RoutingContext routingContext) {
 		
 		int id = Integer.parseInt(routingContext.request().getParam("id"));
 		
-		if (placa2.containsKey(id)) {
+		if (actuadores.containsKey(id)) {
 			
-			Placa2 ds = placa2.get(id);
+			Actuadores ds = actuadores.get(id);
 			
 			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
 					.end(gson.toJson(ds));
 		} else {
-			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(500)
 					.end();
 		}
 	}
 	
-	
-	//POST PLACA1
-	private void addOneP1(RoutingContext routingContext) {
+	//POST PLACAs
+	private void addOnePlaca(RoutingContext routingContext) {
 		
-		final Placa1 placa = gson.fromJson(routingContext.getBodyAsString(), Placa1.class);
-		placa1.put(placa.getId(),placa);
+		final Placas placas = gson.fromJson(routingContext.getBodyAsString(), Placas.class);
+		placas.getid();
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end(gson.toJson(placa));
+				.end(gson.toJson(placas));
 	}
 	
-	//POST PLACA2
-	private void addOneP2(RoutingContext routingContext) {
+	//POST SENSOR
+		private void addOneSensor(RoutingContext routingContext) {
+			
+			final Sensores sensores = gson.fromJson(routingContext.getBodyAsString(), Sensores.class);
+			sensores.getSensorId();
+			routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
+					.end(gson.toJson(sensores));
+		}
 		
-		final Placa2 placal = gson.fromJson(routingContext.getBodyAsString(), Placa2.class);
-		placa2.put(placal.getId(),placal);
-		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end(gson.toJson(placal));
-	}
-	
+	//POST ACTUADOR
+		private void addOneActuador(RoutingContext routingContext) {
+					
+			final Actuadores actuadores = gson.fromJson(routingContext.getBodyAsString(), Actuadores.class);
+			actuadores.getActuadoresId();
+			routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
+				.end(gson.toJson(sensores));
+				}	
 	
 	//CREAR DATOS RANDOM
 	private void createSomeData1(int number) {
 		Random rnd = new Random();
 		IntStream.range(0, number).forEach(elem -> {
 			int id = rnd.nextInt();
-			placa1.put(id, new Placa1(id));
+			placas.put(id, new Placas(id));
 		});
 	}
 	private void createSomeData2(int number) {
 		Random rnd = new Random();
 		IntStream.range(0, number).forEach(elem -> {
 			int id = rnd.nextInt();
-			placa2.put(id, new Placa2(id));
+			sensores.put(id, new Sensores(id));
 		});
 	}
-	
-	/*
-	private void createSomeData(int number) {
+	private void createSomeData3(int number) {
 		Random rnd = new Random();
 		IntStream.range(0, number).forEach(elem -> {
 			int id = rnd.nextInt();
-			users.put(id, new UserEntity(id, "Nombre_" + id, "Apellido_" + id,
-					new Date(Calendar.getInstance().getTimeInMillis() + id), "Username_" + id, "Password_" + id));
+			actuadores.put(id, new Actuadores(id));
 		});
 	}
-	*/
+	
 	
 }

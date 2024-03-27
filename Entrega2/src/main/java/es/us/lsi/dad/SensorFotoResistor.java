@@ -1,6 +1,6 @@
 package es.us.lsi.dad;
 
-public class SensorFotoResistor {
+public class SensorFotoResistor  {
 	private int sensorId;
 	private float valorLuz;
 	private long time=System.currentTimeMillis();

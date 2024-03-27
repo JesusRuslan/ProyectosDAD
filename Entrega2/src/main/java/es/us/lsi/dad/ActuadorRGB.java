@@ -1,10 +1,10 @@
 package es.us.lsi.dad;
 
-public class ActuadorRGB {
+public class ActuadorRGB  {
 	private boolean subida;
 	private boolean bajada;
 	private int placaid;
-	private int sensorId;
+	private int actuadorId;
 	
 	public boolean isSubida() {
 		return subida;
@@ -24,18 +24,18 @@ public class ActuadorRGB {
 	public void setPlacaid(int placaid) {
 		this.placaid = placaid;
 	}
-	public ActuadorRGB(boolean subida, boolean bajada, int placaid,int sensorId) {
+	public ActuadorRGB(boolean subida, boolean bajada, int placaid,int actuadorId) {
 		super();
-		this.sensorId=sensorId;
+		this.actuadorId=actuadorId;
 		this.subida = subida;
 		this.bajada = bajada;
 		this.placaid = placaid;
 	}
-	public int getSensorId() {
-		return sensorId;
+	public int getActuadorId() {
+		return actuadorId;
 	}
-	public void setSensorId(int sensorId) {
-		this.sensorId = sensorId;
+	public void setActuadorId(int actuadorId) {
+		this.actuadorId = actuadorId;
 	}
 	
 	

@@ -1,7 +1,7 @@
 package es.us.lsi.dad;
 
-public class ActuadorServo {
-	private int sensorId;
+public class ActuadorServo   {
+	private int actuadorId;
 	private float velocidad;
 	private long time=System.currentTimeMillis();
 	private boolean sentido; //true sentido agujas
@@ -10,9 +10,9 @@ public class ActuadorServo {
 
 
 
-	public ActuadorServo(float velocidad, long time, boolean sentido, int placaid,int sensorId) {
+	public ActuadorServo(float velocidad, long time, boolean sentido, int placaid,int actuadorId) {
 		super();
-		this.sensorId=sensorId;
+		this.actuadorId=actuadorId;
 		this.velocidad = velocidad;
 		this.time = time;
 		this.sentido = sentido;
@@ -21,15 +21,24 @@ public class ActuadorServo {
 
 
 
-	public int getSensorId() {
-		return sensorId;
+	
+
+
+	public int getActuadorId() {
+		return actuadorId;
 	}
 
 
 
-	public void setSensorId(int sensorId) {
-		this.sensorId = sensorId;
+
+
+
+	public void setActuadorId(int actuadorId) {
+		this.actuadorId = actuadorId;
 	}
+
+
+
 
 
 
@@ -69,10 +78,10 @@ public class ActuadorServo {
 
 
 
+	
 	public int getPlacaid() {
 		return placaid;
 	}
-
 
 
 	public void setPlacaid(int placaid) {
