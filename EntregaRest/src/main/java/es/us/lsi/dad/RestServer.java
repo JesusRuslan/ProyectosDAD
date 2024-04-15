@@ -2,10 +2,12 @@ package es.us.lsi.dad;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 import java.util.stream.IntStream;
 
 import com.google.gson.Gson;
@@ -58,13 +60,15 @@ public class RestServer extends AbstractVerticle {
 		router.get("/api/sensores").handler(this::getAllSensor);
 		router.get("/api/sensores/:id").handler(this::getOneSensor);
 		router.post("/api/sensores").handler(this::addOneSensor);
-		router.get("api/sensores/:id/last").handler(this::getLastValueSensor());
+		router.get("/api/sensores/:id/values").handler(this::getValuesSensor);
+		router.get("/api/sensores/:id/last").handler(this::getLastValueSensor);
 		
 		router.route("/api/actuadores*").handler(BodyHandler.create());
 		router.get("/api/actuadores").handler(this::getAllActuador);
 		router.get("/api/actuadores/:id").handler(this::getOneActuador);
 		router.post("/api/actuadores").handler(this::addOneActuador);
-		router.get("api/actuadores/:id/last").handler(this::getLastValueActuador());
+		router.get("/api/actuadores/:id/values").handler(this::getValuesActuador);
+		router.get("/api/actuadores/:id/last").handler(this::getLastValueActuador);
 	}
 
 	@Override
@@ -141,11 +145,13 @@ public class RestServer extends AbstractVerticle {
 		int id = 0;
 		try {
 			id = Integer.parseInt(routingContext.request().getParam("id"));
-
-			if (sensores.containsKey(id)) {
-				Sensor ds = sensores.get(id);
+			final int comp = id;
+			List<Sensor> ds = sensores.values().stream()
+					.filter(s -> s.getSensorId()==comp)
+					.toList();
+			if (!ds.isEmpty()) {
 				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
-						.setStatusCode(200).end(ds != null ? gson.toJson(ds) : "");
+						.setStatusCode(200).end(gson.toJson(ds));
 			} else {
 				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
 						.setStatusCode(204).end();
@@ -159,11 +165,13 @@ public class RestServer extends AbstractVerticle {
 		int id = 0;
 		try {
 			id = Integer.parseInt(routingContext.request().getParam("id"));
-
-			if (actuadores.containsKey(id)) {
-				Actuador ds = actuadores.get(id);
+			final int comp = id;
+			List<Actuador> ds = actuadores.values().stream()
+					.filter(s -> s.getActuadorId()==comp)
+					.toList();
+			if (!ds.isEmpty()) {
 				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
-						.setStatusCode(200).end(ds != null ? gson.toJson(ds) : "");
+						.setStatusCode(200).end(gson.toJson(ds));
 			} else {
 				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
 						.setStatusCode(204).end();
@@ -181,14 +189,22 @@ public class RestServer extends AbstractVerticle {
 				.end(gson.toJson(placa));
 	}
 	private void addOneSensor(RoutingContext routingContext) {
-		final Sensor sensor = gson.fromJson(routingContext.getBodyAsString(), Sensor.class);
-		sensores.put(sensor.getSensorId(), sensor);
+		final Sensor aux = gson.fromJson(routingContext.getBodyAsString(), Sensor.class);
+		final Sensor sensor = new Sensor(
+				aux.getSensorId(),
+				aux.getPlacaId(),
+				aux.getValor());
+		sensores.put(sensor.getValueId(), sensor);
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
 				.end(gson.toJson(sensor));
 	}
 	private void addOneActuador(RoutingContext routingContext) {
-		final Actuador actuador = gson.fromJson(routingContext.getBodyAsString(), Actuador.class);
-		actuadores.put(actuador.getActuadorId(), actuador);
+		final Actuador aux = gson.fromJson(routingContext.getBodyAsString(), Actuador.class);
+		final Actuador actuador = new Actuador(
+				aux.getActuadorId(),
+				aux.getPlacaId(),
+				aux.getValor());
+		actuadores.put(actuador.getValueId(), actuador);
 		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
 				.end(gson.toJson(actuador));
 	}
@@ -233,32 +249,93 @@ public class RestServer extends AbstractVerticle {
 					.end();
 		}
 	}
-	
+
 	private void getLastValueSensor(RoutingContext routingContext) {
 		int id = 0;
 		try {
 			id = Integer.parseInt(routingContext.request().getParam("id"));
 			final int comp = id;
-			if (placas.containsKey(id)) {
-				List<Actuador> ds = actuadores.values().stream()
-						.filter(a -> a.getPlacaId() == comp)
-						.toList();
+			Sensor ds = sensores.values().stream()
+					.filter(a -> a.getPlacaId() == comp)
+					.sorted(Comparator.comparing(Sensor::getValueId)
+							.reversed())
+					.findFirst()
+					.orElse(null);
+			if (ds != null) {
 				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
-						.setStatusCode(200).end(!ds.isEmpty() ? gson.toJson(ds) : "");
+				.setStatusCode(200).end(gson.toJson(ds));
+			} else {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+				.setStatusCode(204).end();
+			}
+		} catch (Exception e) {
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+			.end();
+		}
+	}
+
+	private void getLastValueActuador(RoutingContext routingContext) {
+		int id = 0;
+		try {
+			id = Integer.parseInt(routingContext.request().getParam("id"));
+			final int comp = id;
+			Actuador ds = actuadores.values().stream()
+					.filter(a -> a.getPlacaId() == comp)
+					.sorted(Comparator.comparing(Actuador::getValueId)
+							.reversed())
+					.findFirst()
+					.orElse(null);
+			if (ds != null) {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+				.setStatusCode(200).end(gson.toJson(ds));
+			} else {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+				.setStatusCode(204).end();
+			}
+		} catch (Exception e) {
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+			.end();
+		}
+	}
+
+	private void getValuesSensor(RoutingContext routingContext) {
+		int id = 0;
+		try {
+			id = Integer.parseInt(routingContext.request().getParam("id"));
+			final int comp = id;
+			List<Sensor> ds = sensores.values().stream()
+					.filter(s -> s.getSensorId()==comp)
+					.toList();
+			if (!ds.isEmpty()) {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+						.setStatusCode(200).end(gson.toJson(ds));
 			} else {
 				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
 						.setStatusCode(204).end();
 			}
 		} catch (Exception e) {
 			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
-					.end();
+			.end();
+		}
+	}
+	private void getValuesActuador (RoutingContext routingContext) {
+		int id = 0;
+		try {
+			id = Integer.parseInt(routingContext.request().getParam("id"));
+			final int comp = id;
+			List<Actuador> ds = actuadores.values().stream()
+					.filter(a -> a.getActuadorId() == comp)
+					.sorted(Comparator.comparing(Actuador::getValueId))
+					.toList();
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+			.setStatusCode(200).end(gson.toJson(!ds.isEmpty() ? gson.toJson(ds) : ""));
+		} catch (Exception e) {
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+			.end();
 		}
 	}
 	
-	private void getLastValueActuador(RoutingContext routingContext) {
-		
-	}
-
+	
 	/*
 	private void deleteOne(RoutingContext routingContext) {
 		int id = Integer.parseInt(routingContext.request().getParam("userid"));
@@ -300,14 +377,16 @@ public class RestServer extends AbstractVerticle {
 		Random rnd = new Random();
 		IntStream.range(0, number).forEach(elem -> {
 			int id = rnd.nextInt();
-			sensores.put(id, new Sensor(id, getRandomPlaca()));
+			Sensor aux = new Sensor(id, getRandomPlaca());
+			sensores.put(aux.getValueId(), aux);
 		});
 	}
 	private void createSomeDataActuadores(int number) {
 		Random rnd = new Random();
 		IntStream.range(0, number).forEach(elem -> {
 			int id = rnd.nextInt();
-			actuadores.put(id, new Actuador(id, getRandomPlaca()));
+			Actuador aux = new Actuador(id, getRandomPlaca());
+			actuadores.put(aux.getValueId(), aux);
 		});
 	}
 

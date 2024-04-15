@@ -4,7 +4,7 @@ public class Placa {
 
 	private Integer id;
 	
-	private static int cont = 0;
+//	private static int cont = 0;
 
 	public Placa(Integer id) {
 		super();
