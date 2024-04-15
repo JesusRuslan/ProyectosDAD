@@ -1,91 +1,39 @@
 package es.us.lsi.dad;
 
 public class ActuadorServo   {
-	private int actuadorId;
-	private float velocidad;
-	private long time=System.currentTimeMillis();
-	private boolean sentido; //true sentido agujas
-	private int placaid;
+	private Integer actuadorId;
+	private Integer placaId;
+	private Double velocidad;
+	private Boolean sentido; // True = sentido horario
+	private Long tiempo;
 	
-
-
-
-	public ActuadorServo(float velocidad, long time, boolean sentido, int placaid,int actuadorId) {
+	public ActuadorServo(Integer actuadorId, Integer placaId, Double velocidad, Boolean sentido) {
 		super();
-		this.actuadorId=actuadorId;
+		this.actuadorId = actuadorId;
+		this.placaId = placaId;
 		this.velocidad = velocidad;
-		this.time = time;
 		this.sentido = sentido;
-		this.placaid = placaid;
+		this.tiempo = System.currentTimeMillis();
 	}
 
-
-
-	
-
-
-	public int getActuadorId() {
+	public Integer getActuadorId() {
 		return actuadorId;
 	}
 
-
-
-
-
-
-	public void setActuadorId(int actuadorId) {
-		this.actuadorId = actuadorId;
+	public Integer getPlacaId() {
+		return placaId;
 	}
 
-
-
-
-
-
-	public float getVelocidad() {
+	public Double getVelocidad() {
 		return velocidad;
 	}
 
-
-
-	public void setVelocidad(float velocidad) {
-		this.velocidad = velocidad;
-	}
-
-
-
-	public long getTime() {
-		return time;
-	}
-
-
-
-	public void setTime(long time) {
-		this.time = time;
-	}
-
-
-
-	public boolean isSentido() {
+	public Boolean getSentido() {
 		return sentido;
 	}
 
-
-
-	public void setSentido(boolean sentido) {
-		this.sentido = sentido;
-	}
-
-
-
-	
-	public int getPlacaid() {
-		return placaid;
-	}
-
-
-	public void setPlacaid(int placaid) {
-		this.placaid = placaid;
+	public Long getTiempo() {
+		return tiempo;
 	}
 	
 	

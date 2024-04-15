@@ -1,41 +1,39 @@
 package es.us.lsi.dad;
 
 public class ActuadorRGB  {
-	private boolean subida;
-	private boolean bajada;
-	private int placaid;
-	private int actuadorId;
+	private Integer actuadorId;
+	private Integer placaId;
+	private Boolean subida;
+	private Boolean bajada;
+	private Long tiempo;
 	
-	public boolean isSubida() {
-		return subida;
-	}
-	public void setSubida(boolean subida) {
-		this.subida = subida;
-	}
-	public boolean isBajada() {
-		return bajada;
-	}
-	public void setBajada(boolean bajada) {
-		this.bajada = bajada;
-	}
-	public int getPlacaid() {
-		return placaid;
-	}
-	public void setPlacaid(int placaid) {
-		this.placaid = placaid;
-	}
-	public ActuadorRGB(boolean subida, boolean bajada, int placaid,int actuadorId) {
+	public ActuadorRGB(Integer actuadorId, Integer placaId, Boolean subida, Boolean bajada) {
 		super();
-		this.actuadorId=actuadorId;
+		this.actuadorId = actuadorId;
+		this.placaId = placaId;
 		this.subida = subida;
 		this.bajada = bajada;
-		this.placaid = placaid;
+		this.tiempo = System.currentTimeMillis();
 	}
-	public int getActuadorId() {
+
+	public Integer getActuadorId() {
 		return actuadorId;
 	}
-	public void setActuadorId(int actuadorId) {
-		this.actuadorId = actuadorId;
+
+	public Integer getPlacaId() {
+		return placaId;
+	}
+
+	public Boolean getSubida() {
+		return subida;
+	}
+
+	public Boolean getBajada() {
+		return bajada;
+	}
+
+	public Long getTiempo() {
+		return tiempo;
 	}
 	
 	
