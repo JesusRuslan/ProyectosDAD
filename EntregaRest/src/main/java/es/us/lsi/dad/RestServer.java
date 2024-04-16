@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.TreeMap;
 import java.util.stream.IntStream;
 
 import com.google.gson.Gson;
@@ -46,7 +45,7 @@ public class RestServer extends AbstractVerticle {
 				startFuture.fail(result.cause());
 			}
 		});
-
+		
 		// Defining URI paths for each method in RESTful interface, including body
 		// handling by /api/users* or /api/users/*
 		router.route("/api/placas*").handler(BodyHandler.create());
