@@ -13,10 +13,18 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.Future;
 import io.vertx.core.Promise;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.mysqlclient.MySQLConnectOptions;
+import io.vertx.mysqlclient.MySQLPool;
+import io.vertx.sqlclient.PoolOptions;
+import io.vertx.sqlclient.Row;
+import io.vertx.sqlclient.RowSet;
 
 public class RestServer extends AbstractVerticle {
 
@@ -46,6 +54,15 @@ public class RestServer extends AbstractVerticle {
 			}
 		});
 		
+		MySQLConnectOptions rootOptions = new MySQLConnectOptions().setPort(3306).setHost("localhost")
+				.setDatabase("RestServerDAD").setUser("root").setPassword("dadroot");
+		MySQLConnectOptions userOptions = new MySQLConnectOptions().setPort(3306).setHost("localhost")
+				.setDatabase("RestServerDAD").setUser("daduser").setPassword("daduser");
+		
+		PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
+		
+		MySQLPool mySqlClient = MySQLPool.pool(vertx, rootOptions, poolOptions);
+
 		// Defining URI paths for each method in RESTful interface, including body
 		// handling by /api/users* or /api/users/*
 		router.route("/api/placas*").handler(BodyHandler.create());
