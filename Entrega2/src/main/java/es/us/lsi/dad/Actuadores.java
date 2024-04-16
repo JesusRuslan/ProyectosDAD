@@ -7,45 +7,46 @@ import java.util.Random;
 public class Actuadores {
 
 	private Integer valueId;
-	private Integer actuadoresId;
-	private TipoActuador tipo;
-	private Integer placaid;
+	private Integer actuadorId;
+	private Integer placaId;
 	private List<Double> valor;
 	private Long tiempo;
 
 	private static int cont = 0;
-	private static final Random PRNG = new Random();
 	
-	public Actuadores(Integer actuadoresId, Integer placaid) {
+	public Actuadores(Integer actuadorId, Integer placaId) {
 		super();
-		this.actuadoresId = actuadoresId;
-		TipoActuador[] tipos = TipoActuador.values();
-		this.tipo = tipos[PRNG.nextInt(tipos.length)];
-		this.placaid = placaid;
+		this.valueId = cont;
+		this.actuadorId = actuadorId;
+		this.placaId = placaId;
 		List<Double> valores = new ArrayList<>();
 		valores.add(0.); valores.add(0.);
 		this.valor = valores;
-		this.tiempo = System.currentTimeMillis()+cont; cont++;
+		this.tiempo = System.currentTimeMillis();
+		cont++;
 	}
 	
-	public Actuadores(Integer actuadoresId, Integer placaId, List<Double> valor, Long tiempo) {
+	public Actuadores(Integer actuadorId, Integer placaId, List<Double> valor) {
 		super();
-		this.actuadoresId = actuadoresId;
-		this.placaid = placaId;
+		this.valueId = cont;
+		this.actuadorId = actuadorId;
+		this.placaId = placaId;
 		this.valor = valor;
-		this.tiempo = tiempo;
+		this.tiempo = System.currentTimeMillis();
+		cont++;
+		
 	}
 
-	public Integer getActuadoresId() {
-		return actuadoresId;
+	public Integer getValueId() {
+		return valueId;
 	}
 	
-	public TipoActuador getTipo() {
-		return tipo;
+	public Integer getActuadorId() {
+		return actuadorId;
 	}
 
 	public Integer getPlacaId() {
-		return placaid;
+		return placaId;
 	}
 
 	public List<Double> getValor() {
@@ -55,9 +56,5 @@ public class Actuadores {
 	public Long getTiempo() {
 		return tiempo;
 	}
-		public Actuadores(int actuadoresId) {
-			super();
-			this.actuadoresId = actuadoresId;
-		}
 
 }

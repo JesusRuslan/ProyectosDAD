@@ -31,6 +31,7 @@ public class RestServer extends AbstractVerticle {
 		// Creating some synthetic data
 		createSomeDataPlacas(5);
 		createSomeDataSensores(5);
+		createSomeDataSensoresRepetidos(2);
 		createSomeDataActuadores(5);
 		
 
@@ -52,27 +53,31 @@ public class RestServer extends AbstractVerticle {
 		// Defining URI paths for each method in RESTful interface, including body
 		// handling by /api/users* or /api/users/*
 		
-		//todo los post y put ->que tengan cuerpo
 		router.route("/api/placas*").handler(BodyHandler.create());
 		router.get("/api/placas").handler(this::getAllPlaca);
 		router.get("/api/placas/:id").handler(this::getOnePlaca);
 		router.post("/api/placas").handler(this::addOnePlaca);
 		
-		//Youyousie
+		//GETTERS ADICIONALES
 		router.get("/api/sensores/registros").handler(this::getTresUltimosSensores);
+		router.get("/api/placa/ultimo/:id").handler(this::getLastValueSensorFromPlaca);
+		router.get("/api/sensores/ultimo/:id").handler(this::getLastValueSensorFromSensor);
+		router.get("/api/actuadores/ultimo/:id").handler(this::getLastValueSensorFromActuador);
+		router.get("/api/sensores/:id/valores").handler(this::getValuesSensor);
+		router.get("/api/actuadores/:id/valores").handler(this::getValuesActuador);
+		router.get("/api/placas/:id/valoresSensores").handler(this::getListaValoresSensoresIdPlaca);
+		
 		
 		router.route("/api/sensores*").handler(BodyHandler.create());
 		router.get("/api/sensores").handler(this::getAllSensor);
 		router.get("/api/sensores/:id").handler(this::getOneSensor);
 		router.post("/api/sensores").handler(this::addOneSensor);
-		router.get("/api/sensores/:id/valores").handler(this::getListadoValoresSensor);
-		router.get("/api/placas/:id/valoresSensores").handler(this::getListaValoresSensoresIdPlaca);
+
 		
 		router.route("/api/actuadores*").handler(BodyHandler.create());
 		router.get("/api/actuadores").handler(this::getAllActuador);
 		router.get("/api/actuadores/:id").handler(this::getOneActuador);
 		router.post("/api/actuadores").handler(this::addOneActuador);
-	//	router.get("/api/placas/:id/actuadores").handler(this::getValorActuadoresIdPlaca);
 
 	}
 
@@ -121,109 +126,114 @@ public class RestServer extends AbstractVerticle {
 	
 	//GET ID SENSORES
 	private void getOneSensor(RoutingContext routingContext) {
-			
-			int id = Integer.parseInt(routingContext.request().getParam("id"));
-			
-			if (sensores.containsKey(id)) {
-				
-				Sensores ds = sensores.get(id);
-				
-				routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
-						.end(gson.toJson(ds));
+		int id = 0;
+		try {
+			id = Integer.parseInt(routingContext.request().getParam("id"));
+			final int comp = id;
+			List<Sensores> ds = sensores.values().stream()
+					.filter(s -> s.getSensorId()==comp)
+					.toList();
+			if (!ds.isEmpty()) {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+						.setStatusCode(200).end(gson.toJson(ds));
 			} else {
-				routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(500)
-						.end();
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+						.setStatusCode(204).end();
 			}
+		} catch (Exception e) {
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+					.end();
 		}
-	
+	}
 	//GET ID ACTUADORES
-	
 	private void getOneActuador(RoutingContext routingContext) {
-		
-		int id = Integer.parseInt(routingContext.request().getParam("id"));
-		
-		if (actuadores.containsKey(id)) {
-			
-			Actuadores ds = actuadores.get(id);
-			
-			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
-					.end(gson.toJson(ds));
-		} else {
-			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(500)
+		int id = 0;
+		try {
+			id = Integer.parseInt(routingContext.request().getParam("id"));
+			final int comp = id;
+			List<Actuadores> ds = actuadores.values().stream()
+					.filter(s -> s.getActuadorId()==comp)
+					.toList();
+			if (!ds.isEmpty()) {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+						.setStatusCode(200).end(gson.toJson(ds));
+			} else {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+						.setStatusCode(204).end();
+			}
+		} catch (Exception e) {
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
 					.end();
 		}
 	}
 	
-	/* 
-	 ///////me falta compararlo por time
+
+	
+// GET ULTIMOS 3 SENSORES
 	 
 	private void getTresUltimosSensores(RoutingContext routingContext) {
+
+		
         // Obtener todas las entradas del mapa de actuadores
-        List<Map.Entry<Integer, Sensores>> entries = new ArrayList<>(sensores.entrySet());
+        List<Map.Entry<Integer, Sensores>> entradas = new ArrayList<>(sensores.entrySet());
         
+		List<Sensores> sensoresLista = sensores.values().stream().sorted(Comparator.comparing(Sensores::getTiempo))
+	            .collect(Collectors.toList());
+		
         //Siendo [idValue:sensores]
         
-        // Verificar si hay menos de tres valores
-        if (entries.size() <= 3) {
-            // Si hay tres o menos elementos, devolver todas las entradas
+        if (entradas.size() <= 3) {
+            // devolver todas las entradas, si hay tres o menos elementos,
             routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
-            .end(gson.toJson(entries));
+            .end(gson.toJson(entradas));
         } else {
             // Si hay más de tres valores, obtener los últimos tres 
-            List<Map.Entry<Integer, Sensores>> lastThreeEntries = entries.subList(entries.size() - 3, entries.size());
+            List<Map.Entry<Integer, Sensores>> ultimosTres = entradas.subList(entradas.size() - 3, entradas.size());
+            List<Sensores> lastThreeActuadores = ultimosTres.stream().map(Map.Entry::getValue).collect(Collectors.toList());
 
-            // Convertir las entradas de mapa a una lista de valores (en este caso, los ActuadorEntity)
-            List<Sensores> lastThreeActuadores = lastThreeEntries.stream()
-                    .map(Map.Entry::getValue)
-                    .collect(Collectors.toList());
-
-            // Devolver los últimos tres actuadores como respuesta
             routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
             .end(gson.toJson(lastThreeActuadores));
         }
     }
-	
-	/////esto adecuarlo
-	 * 
-	private void LastSensorValue(RoutingContext routingContext) {
-	    int sensorId = Integer.parseInt(routingContext.request().getParam("sensorId"));
-	    List<Sensores> sen = sensores.values()
-	            .stream()
-	            .sorted(Comparator.comparing(Sensores::getTiempo))
-	            .filter(x -> x.getSensorId().equals(sensorId))
-	            .collect(Collectors.toList());
 
-	    List<Double> values = sen.stream()
-	            .map(Sensores::getValor)
-	            .map(Double::doubleValue)
-	            .collect(Collectors.toList());
+	// GET HISTORIAL DE VALORES DE UN SENSOR
+	private void getValuesSensor(RoutingContext routingContext) {
+		 int id = Integer.parseInt(routingContext.request().getParam("id"));
+		Map<Integer,List<Double>> idSensorValores= new HashMap<Integer, List<Double>>();
+		try {
 
-	    routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
-	            .end(gson.toJson(values));
-	}
-	
-	*/
-	
-	
-	
-	
-	
-	
-	//GET LISTA VALORES DADO LA ID DE UN SENSOR
-	
-	private void getListadoValoresSensor(RoutingContext routingContext) {
-		int id = Integer.parseInt(routingContext.request().getParam("id"));
-		Sensores sensor = sensores.get(id);
-		if (sensor != null) {
-		    List<Double> ds = sensor.getValor();
-		    routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
-		            .end(gson.toJson(ds));
-		} else {
-		    routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(500)
-		            .end();
+			
+			List<Sensores> acc = sensores.values().stream().filter(e->e.getSensorId()==id).toList(); 
+			for(int i=0;i<acc.size();i++) {
+				Sensores sensor=acc.get(i);
+				idSensorValores.put(sensor.getValueId(), sensor.getValor()) ;
+			}
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
+			.end(gson.toJson(idSensorValores.toString()));
+		} catch (Exception e) {
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+			.end();
 		}
 	}
-	
+	// GET HISTORIAL DE VALORES DE UN ACTUADOR
+	private void getValuesActuador(RoutingContext routingContext) {
+		 int id = Integer.parseInt(routingContext.request().getParam("id"));
+		Map<Integer,List<Double>> idSensorValores= new HashMap<Integer, List<Double>>();
+		try {
+
+			
+			List<Actuadores> acc = actuadores.values().stream().filter(e->e.getActuadorId()==id).toList(); 
+			for(int i=0;i<acc.size();i++) {
+				Actuadores actuador=acc.get(i);
+				idSensorValores.put(actuador.getValueId(), actuador.getValor()) ;
+			}
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
+			.end(gson.toJson(idSensorValores.toString()));
+		} catch (Exception e) {
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+			.end();
+		}
+	}
 	
 	
 		//GET CON ID PLACA NOS DE VALORES SENSORES 
@@ -248,58 +258,117 @@ public class RestServer extends AbstractVerticle {
 			}
 		}
 	
-	
-	
-		
-	
-	
-	//GET ÚLTIMO VALOR DE UN SENSOR
-
-	private void getÚltimoValorSensor(RoutingContext routingContext) {
-		int id = Integer.parseInt(routingContext.request().getParam("id"));
-		Sensores sensor = sensores.get(id);
-		if (sensor != null) {
-			
-		    List<Double> ds = sensor.getValor();
-		    routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(200)
-		            .end(gson.toJson(ds));
-		} else {
-		    routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(500)
-		            .end();
+// GET ULTIMO VALOR RECOGIDO DE LA PLACA
+	private void getLastValueSensorFromPlaca(RoutingContext routingContext) {
+		int id = 0;
+		try {
+			id = Integer.parseInt(routingContext.request().getParam("id"));
+			final int comp = id;
+			Sensores ds = sensores.values().stream()
+					.filter(a -> a.getPlacaId() == comp)
+					.sorted(Comparator.comparing(Sensores::getValueId)
+							.reversed())
+					.findFirst()
+					.orElse(null);
+			if (ds != null) {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+				.setStatusCode(200).end(gson.toJson(ds));
+			} else {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+				.setStatusCode(204).end();
+			}
+		} catch (Exception e) {
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+			.end();
 		}
 	}
+	
+	// GET ULTIMO VALOR RECOGIDO DE UN SENSOR
+	
+	private void getLastValueSensorFromSensor(RoutingContext routingContext) {
+		int id = 0;
+		try {
+			id = Integer.parseInt(routingContext.request().getParam("id"));
+			final int comp = id;
+			Sensores ds = sensores.values().stream()
+					.filter(a -> a.getSensorId() == comp)
+					.sorted(Comparator.comparing(Sensores::getValueId)
+							.reversed())
+					.findFirst()
+					.orElse(null);
+			if (ds != null) {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+				.setStatusCode(200).end(gson.toJson(ds));
+			} else {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+				.setStatusCode(204).end();
+			}
+		} catch (Exception e) {
+			routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+			.end();
+		}
+	}
+		// GET ULTIMO VALOR RECOGIDO DE UN ACTUADOR
+		
+		private void getLastValueSensorFromActuador(RoutingContext routingContext) {
+			int id = 0;
+			try {
+				id = Integer.parseInt(routingContext.request().getParam("id"));
+				final int comp = id;
+				Actuadores ds = actuadores.values().stream()
+						.filter(a -> a.getActuadorId()== comp)
+						.sorted(Comparator.comparing(Actuadores::getValueId)
+								.reversed())
+						.findFirst()
+						.orElse(null);
+				if (ds != null) {
+					routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+					.setStatusCode(200).end(gson.toJson(ds));
+				} else {
+					routingContext.response().putHeader("content-type", "application/json; charset=utf-8")
+					.setStatusCode(204).end();
+				}
+			} catch (Exception e) {
+				routingContext.response().putHeader("content-type", "application/json; charset=utf-8").setStatusCode(204)
+				.end();
+			}
+	}
+	
 	
 	
 	
 	//POST PLACAs
-	private void addOnePlaca(RoutingContext routingContext) {
-		
-		final Placas placa = gson.fromJson(routingContext.getBodyAsString(), Placas.class);
-		placas.put(placa.getid(), placa);
-		routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end(gson.toJson(placa));
-	}
-	
-	//POST SENSOR
-		private void addOneSensor(RoutingContext routingContext) {
-			
-			final Sensores sensore = gson.fromJson(routingContext.getBodyAsString(), Sensores.class);
-			sensores.put(sensore.getSensorId(), sensore);
+
+		private void addOnePlaca(RoutingContext routingContext) {
+			final Placas placa = gson.fromJson(routingContext.getBodyAsString(), Placas.class);
+			placas.put(placa.getid(), placa);
 			routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-					.end(gson.toJson(sensore));
+					.end(gson.toJson(placa));
 		}
-		
-	//POST ACTUADOR
-		private void addOneActuador(RoutingContext routingContext) {
-					
-			final Actuadores actuadore = gson.fromJson(routingContext.getBodyAsString(), Actuadores.class);
-			actuadores.put(actuadore.getActuadoresId(), actuadore);
+		//POST SENSOR
+		private void addOneSensor(RoutingContext routingContext) {
+			final Sensores aux = gson.fromJson(routingContext.getBodyAsString(), Sensores.class);
+			final Sensores sensor = new Sensores(
+					aux.getSensorId(),
+					aux.getPlacaId(),
+					aux.getValor());
+			sensores.put(sensor.getValueId(), sensor);
 			routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
-				.end(gson.toJson(actuadore));
-				}	
+					.end(gson.toJson(sensor));
+		}
+		//POST ACTUADOR
+		private void addOneActuador(RoutingContext routingContext) {
+			final Actuadores aux = gson.fromJson(routingContext.getBodyAsString(), Actuadores.class);
+			final Actuadores actuador = new Actuadores(
+					aux.getActuadorId(),
+					aux.getPlacaId(),
+					aux.getValor());
+			actuadores.put(actuador.getValueId(), actuador);
+			routingContext.response().setStatusCode(201).putHeader("content-type", "application/json; charset=utf-8")
+					.end(gson.toJson(actuador));
+		}
 	
 	//CREAR DATOS RANDOM
-
 		private void createSomeDataPlacas(int number) {
 			Random rnd = new Random();
 			IntStream.range(0, number).forEach(elem -> {
@@ -311,14 +380,25 @@ public class RestServer extends AbstractVerticle {
 			Random rnd = new Random();
 			IntStream.range(0, number).forEach(elem -> {
 				int id = rnd.nextInt();
-				sensores.put(id, new Sensores(id, getRandomPlaca()));
+				Sensores aux = new Sensores(id, getRandomPlaca());
+				sensores.put(aux.getValueId(), aux);
+			});
+		}
+		
+		private void createSomeDataSensoresRepetidos(int number) {
+			Random rnd = new Random();
+			IntStream.range(0, number).forEach(elem -> {
+				int id = rnd.nextInt();
+				Sensores aux = new Sensores(getRandomSensores(), getRandomPlaca());
+				sensores.put(aux.getValueId(), aux);
 			});
 		}
 		private void createSomeDataActuadores(int number) {
 			Random rnd = new Random();
 			IntStream.range(0, number).forEach(elem -> {
 				int id = rnd.nextInt();
-				actuadores.put(id,new Actuadores(id, getRandomPlaca()));
+				Actuadores aux = new Actuadores(id, getRandomPlaca());
+				actuadores.put(aux.getValueId(), aux);
 			});
 		}
 
@@ -328,6 +408,10 @@ public class RestServer extends AbstractVerticle {
 			return PlacasId.get(0);
 		}
 
-	
+		private Integer getRandomSensores() {
+			List<Integer> SensorId = sensores.values().stream().map(Sensores:: getSensorId).collect(Collectors.toList());
+			Collections.shuffle(SensorId);
+			return SensorId.get(0);
+		}
 	
 }
