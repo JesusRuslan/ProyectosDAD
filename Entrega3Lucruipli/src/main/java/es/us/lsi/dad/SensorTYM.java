@@ -1,13 +1,14 @@
 package es.us.lsi.dad;
 
-public class SensorTempHumedad {
+public class SensorTYM {
+
 	private Integer sensorId;
 	private Integer placaId;
 	private Float temperatura;
 	private Float humedad;
 	private Long tiempo;
 	
-	public SensorTempHumedad(Integer sensorId, Integer placaId, Float temperatura, Float humedad) {
+	public SensorTYM(Integer sensorId, Integer placaId, Float temperatura, Float humedad) {
 		super();
 		this.sensorId = sensorId;
 		this.placaId = placaId;
@@ -35,9 +36,7 @@ public class SensorTempHumedad {
 	public Long getTiempo() {
 		return tiempo;
 	}
-	
-	
-	
-	
+
+
 	
 }

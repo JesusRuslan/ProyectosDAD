@@ -1,18 +1,18 @@
 package es.us.lsi.dad;
 
-public class SensorTempHumedad {
+public class SensorFotoResistor  {
 	private Integer sensorId;
 	private Integer placaId;
-	private Float temperatura;
-	private Float humedad;
+	private Float lecturaLuz;
+	private Boolean luz;
 	private Long tiempo;
 	
-	public SensorTempHumedad(Integer sensorId, Integer placaId, Float temperatura, Float humedad) {
+	public SensorFotoResistor(Integer sensorId, Integer placaId, Float lecturaLuz) {
 		super();
 		this.sensorId = sensorId;
 		this.placaId = placaId;
-		this.temperatura = temperatura;
-		this.humedad = humedad;
+		this.lecturaLuz = lecturaLuz;
+		this.luz = lecturaLuz>=2250.0?true:false;
 		this.tiempo = System.currentTimeMillis();
 	}
 
@@ -24,17 +24,19 @@ public class SensorTempHumedad {
 		return placaId;
 	}
 
-	public Float getTemperatura() {
-		return temperatura;
+	public Float getLecturaLuz() {
+		return lecturaLuz;
 	}
 
-	public Float getHumedad() {
-		return humedad;
+	public Boolean getLuz() {
+		return luz;
 	}
 
 	public Long getTiempo() {
 		return tiempo;
 	}
+
+
 	
 	
 	

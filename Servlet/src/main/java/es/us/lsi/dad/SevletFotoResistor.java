@@ -29,12 +29,18 @@ public class SevletFotoResistor {
 		String message2 = Calendar.getInstance().getTime().toString();
 		out.println("<body>");
 		out.println("<div>");
+		out.println("<h2>PlacaId:</h2>");
+		out.println("<p>PlacaId:"+ request.getParameter("placaId") +  "</p>");
+		out.println("<h2>SensorId:</h2>");
+		out.println("<p>SensorId:"+ request.getParameter("sensorId") +  "</p>");
 		out.println("<h2>Tiempo:</h2>");
 		out.println("<p>Tiempo:"+ message2 + number+ "</p>");
 		out.println("</div>");
 		out.println("<div>");
 		out.println("<h2>Luz:</h2>");
 		out.println("<p>Luz:" + request.getParameter("luz")+"</p>");
+		out.println("<h2>Lectura Luz:</h2>");
+		out.println("<p>Valor Luz:" + request.getParameter("lecturaLuz")+"</p>");
 		out.println("</div>");
 		out.println("</body>");
 		number++;

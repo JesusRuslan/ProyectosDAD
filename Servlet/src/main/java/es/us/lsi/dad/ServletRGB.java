@@ -8,15 +8,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class SevletServo {
-	private static final long serialVersionUID = 8614154670780048L;
+public class ServletRGB {
+	private static final long serialVersionUID = 861415467074580048L;
 
 	private String message;
 	private int number;
-
+	private SensorTempHumedad sensor;
 
 	public void init() throws ServletException {
-		message = "Medición Sensor Servo";
+		message = "Medición Sensor Temperatura y Humedad";
 		number = 0;
 		//throw new ServletException();
 	}
@@ -25,7 +25,7 @@ public class SevletServo {
 		
 		PrintWriter out = response.getWriter();
 		response.setContentType("text/html");
-		out.println("<h1>Medición Sensor Servo</h1>");
+		out.println("<h1>Medición del sensor Temperatura y Humedad</h1>");
 		String message2 = Calendar.getInstance().getTime().toString();
 		out.println("<body>");
 		out.println("<div>");
@@ -37,12 +37,12 @@ public class SevletServo {
 		out.println("<p>Tiempo:"+ message2 + number+ "</p>");
 		out.println("</div>");
 		out.println("<div>");
-		out.println("<h2>Velocidad:</h2>");
-		out.println("<p>Velocidad:" + request.getParameter("velocidad")+"</p>");
+		out.println("<h2>Subida:</h2>");
+		out.println("<p>Subida:" + request.getParameter("subida")+"</p>");
 		out.println("</div>");
 		out.println("<div>");
-		out.println("<h2>Sentido:</h2>");
-		out.println("<p>Sentido:"+ request.getParameter("sentido")+"</p>");
+		out.println("<h2>Bajada:</h2>");
+		out.println("<p>Bajada:"+ request.getParameter("bajada")+"</p>");
 		out.println("</div>");
 		out.println("</body>");
 		number++;
