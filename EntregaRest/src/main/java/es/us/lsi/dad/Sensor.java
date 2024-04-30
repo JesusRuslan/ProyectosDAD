@@ -1,58 +1,59 @@
 package es.us.lsi.dad;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Sensor {
 
 	private Integer valueId;
 	private Integer sensorId;
 	private Integer placaId;
-	private List<Double> valor;
+	private Double valor1;
+	private Double valor2;
+	private Integer tipoSensor;
 	private Long tiempo;
+	private Integer groupId;
 	
-	private static int cont = 0;
-
-	public Sensor(Integer sensorId, Integer placaId) {
+	public Sensor(Integer valueId, Integer sensorId, Integer placaId, Double valor1, Double valor2, Integer tipoSensor,
+			Long tiempo, Integer groupId) {
 		super();
-		this.valueId = cont;
+		this.valueId = valueId;
 		this.sensorId = sensorId;
 		this.placaId = placaId;
-		List<Double> valores = new ArrayList<>();
-		valores.add(0.); valores.add(0.);
-		this.valor = valores;
-		this.tiempo = System.currentTimeMillis();
-		cont++;
-	}
-	
-	public Sensor(Integer sensorId, Integer placaId, List<Double> valor) {
-		super();
-		this.valueId = cont;
-		this.sensorId = sensorId;
-		this.placaId = placaId;
-		this.valor = valor;
-		this.tiempo = System.currentTimeMillis();
-		cont++;
+		this.valor1 = valor1;
+		this.valor2 = valor2;
+		this.tipoSensor = tipoSensor;
+		this.tiempo = tiempo;
+		this.groupId = groupId;
 	}
 
 	public Integer getValueId() {
 		return valueId;
 	}
-	
+
 	public Integer getSensorId() {
 		return sensorId;
 	}
-	
+
 	public Integer getPlacaId() {
 		return placaId;
 	}
 
-	public List<Double> getValor() {
-		return new ArrayList<>(valor);
+	public Double getValor1() {
+		return valor1;
+	}
+
+	public Double getValor2() {
+		return valor2;
+	}
+
+	public Integer getTipoSensor() {
+		return tipoSensor;
 	}
 
 	public Long getTiempo() {
 		return tiempo;
+	}
+
+	public Integer getGroupId() {
+		return groupId;
 	}
 	
 }

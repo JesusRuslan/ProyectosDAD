@@ -8,38 +8,27 @@ public class Actuador {
 	private Integer valueId;
 	private Integer actuadorId;
 	private Integer placaId;
-	private List<Double> valor;
+	private Double valor;
+	private Integer tipoActuador;
 	private Long tiempo;
-
-	private static int cont = 0;
+	private Integer groupId;
 	
-	public Actuador(Integer actuadorId, Integer placaId) {
+	public Actuador(Integer valueId, Integer actuadorId, Integer placaId, Double valor, Integer tipoActuador,
+			Long tiempo, Integer groupId) {
 		super();
-		this.valueId = cont;
-		this.actuadorId = actuadorId;
-		this.placaId = placaId;
-		List<Double> valores = new ArrayList<>();
-		valores.add(0.); valores.add(0.);
-		this.valor = valores;
-		this.tiempo = System.currentTimeMillis();
-		cont++;
-	}
-	
-	public Actuador(Integer actuadorId, Integer placaId, List<Double> valor) {
-		super();
-		this.valueId = cont;
+		this.valueId = valueId;
 		this.actuadorId = actuadorId;
 		this.placaId = placaId;
 		this.valor = valor;
-		this.tiempo = System.currentTimeMillis();
-		cont++;
-		
+		this.tipoActuador = tipoActuador;
+		this.tiempo = tiempo;
+		this.groupId = groupId;
 	}
 
 	public Integer getValueId() {
 		return valueId;
 	}
-	
+
 	public Integer getActuadorId() {
 		return actuadorId;
 	}
@@ -48,12 +37,20 @@ public class Actuador {
 		return placaId;
 	}
 
-	public List<Double> getValor() {
-		return new ArrayList<>(valor);
+	public Double getValor() {
+		return valor;
+	}
+
+	public Integer getTipoActuador() {
+		return tipoActuador;
 	}
 
 	public Long getTiempo() {
 		return tiempo;
+	}
+
+	public Integer getGroupId() {
+		return groupId;
 	}
 	
 }
