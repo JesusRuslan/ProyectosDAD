@@ -10,6 +10,7 @@ import io.vertx.mysqlclient.MySQLPool;
 import io.vertx.sqlclient.PoolOptions;
 import io.vertx.sqlclient.Row;
 import io.vertx.sqlclient.RowSet;
+import io.vertx.sqlclient.Tuple;
 
 public class MainVerticle extends AbstractVerticle{
 	
@@ -26,13 +27,12 @@ public class MainVerticle extends AbstractVerticle{
 		getAllSensores();
 		getAllActuadores();
 		getAllPlacas();
-/*
-		getAllWithConnection();
-
-		for (int i = 0; i < 100; i++) {
-			getByName("lsoriamo");	
-		}
-		*/
+		getTresUltimosSensores();
+		getValuesSensor(2);
+		getValuesActuador(1);
+		
+		
+	
 	}
 	
 		private void getAllSensores() {
@@ -45,7 +45,9 @@ public class MainVerticle extends AbstractVerticle{
 				for (Row elem : resultSet) {
 					result.add(JsonObject.mapFrom(new Sensores(
 							elem.getInteger("valueId"),
-							elem.getInteger("sensoresId"),
+							elem.getInteger("placaId"),
+							elem.getInteger("groupId"),
+							elem.getInteger("sensorId"),
 							elem.getDouble("temperatura"),
 							elem.getDouble("humedad"),
 							elem.getLong("tiempo"))));
@@ -69,7 +71,8 @@ public class MainVerticle extends AbstractVerticle{
 						result.add(JsonObject.mapFrom(new Actuadores(
 								elem.getInteger("valueId"),
 								elem.getInteger("placaId"),
-								elem.getInteger("actuadoresId"),
+								elem.getInteger("groupId"),
+								elem.getInteger("actuadorId"),
 								elem.getDouble("velocidad"),
 								elem.getBoolean("sentido"),
 								elem.getLong("tiempo"))));
@@ -97,6 +100,95 @@ public class MainVerticle extends AbstractVerticle{
 					System.out.println("Error: " + res.cause().getLocalizedMessage());
 				}
 			});
+			}
+				
+				private void getTresUltimosSensores() {
+					mySqlClient.query("SELECT * FROM proyectodad.sensores ORDER BY valueId ASC LIMIT 3 ;" , res -> {
+					if (res.succeeded()) {
+						// Get the result set
+						RowSet<Row> resultSet = res.result();
+						System.out.println(resultSet.size());
+						JsonArray result = new JsonArray();
+						for (Row elem : resultSet) {
+							result.add(JsonObject.mapFrom(JsonObject.mapFrom(new Sensores(
+									elem.getInteger("valueId"),
+									elem.getInteger("placaId"),
+									elem.getInteger("groupId"),
+									elem.getInteger("sensorId"),
+									elem.getDouble("temperatura"),
+									elem.getDouble("humedad"),
+									elem.getLong("tiempo")))));
+						}
+						System.out.println(result.toString());
+					} else {
+						System.out.println("Error: " + res.cause().getLocalizedMessage());
+					}
+				});	
+				
 		}
-		
+				private void getValuesSensor(Integer sensorId) {
+						mySqlClient.getConnection(connection -> {
+							if (connection.succeeded()) {
+								connection.result().preparedQuery("SELECT * FROM proyectodad.sensores WHERE sensorId = ?" ,
+									Tuple.of(sensorId), res -> {
+										if (res.succeeded()) {
+											// Get the result set
+											RowSet<Row> resultSet = res.result();
+											System.out.println(resultSet.size());
+											JsonArray result = new JsonArray();
+											for (Row elem : resultSet) {
+								result.add(JsonObject.mapFrom(JsonObject.mapFrom(new Sensores(
+										elem.getInteger("valueId"),
+										elem.getInteger("placaId"),
+										elem.getInteger("groupId"),
+										elem.getInteger("sensorId"),
+										elem.getDouble("temperatura"),
+										elem.getDouble("humedad"),
+										elem.getLong("tiempo")))));
+											}
+											System.out.println(result.toString());
+										} else {
+											System.out.println("Error: " + res.cause().getLocalizedMessage());
+										}
+										connection.result().close();
+									});
+						} else {
+							System.out.println(connection.cause().toString());
+						}
+					});
+				}
+				
+				
+				private void getValuesActuador(Integer actuadorId) {
+					mySqlClient.getConnection(connection -> {
+						if (connection.succeeded()) {
+							connection.result().preparedQuery("SELECT * FROM proyectodad.actuadores WHERE actuadorId = ?" ,
+								Tuple.of(actuadorId), res -> {
+									if (res.succeeded()) {
+										// Get the result set
+										RowSet<Row> resultSet = res.result();
+										System.out.println(resultSet.size());
+										JsonArray result = new JsonArray();
+										for (Row elem : resultSet) {
+							result.add(JsonObject.mapFrom(JsonObject.mapFrom(new Actuadores(
+									elem.getInteger("valueId"),
+									elem.getInteger("placaId"),
+									elem.getInteger("groupId"),
+									elem.getInteger("actuadorId"),
+									elem.getDouble("velocidad"),
+									elem.getBoolean("sentido"),
+									elem.getLong("tiempo")))));
+										}
+										System.out.println(result.toString());
+									} else {
+										System.out.println("Error: " + res.cause().getLocalizedMessage());
+									}
+									connection.result().close();
+								});
+					} else {
+						System.out.println(connection.cause().toString());
+					}
+				});
+			}
+				
 }
