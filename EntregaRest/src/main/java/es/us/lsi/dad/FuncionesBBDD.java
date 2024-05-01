@@ -35,11 +35,11 @@ public class FuncionesBBDD extends AbstractVerticle {
 		PoolOptions poolOptions = new PoolOptions().setMaxSize(5);
 
 		mySqlClient = MySQLPool.pool(vertx, rootOptions, poolOptions);
-/*
+
 		getAllPlacas();
 		getAllSensores();
 		getAllActuadores();
-
+/*
 		getOnePlaca();
 		getOneSensor();
 		getOneActuador();
@@ -50,10 +50,11 @@ public class FuncionesBBDD extends AbstractVerticle {
 		getValuesSensor(1);
 		getLastValueSensor(1);
 		getLastThreeValueSensor(1);
-*/
+
 		addOnePlaca();
-//		addOneSensor();
-//		addOneActuador();
+		addOneSensor();
+		addOneActuador();
+*/
 	}
 
 	@Override
@@ -378,4 +379,13 @@ public class FuncionesBBDD extends AbstractVerticle {
 	private void addOnePlaca() {
 		
 	}
+	private void addOneSensor() {
+		// TODO Auto-generated method stub
+		
+	}
+	private void addOneActuador() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

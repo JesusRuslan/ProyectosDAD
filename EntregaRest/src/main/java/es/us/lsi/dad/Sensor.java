@@ -2,38 +2,38 @@ package es.us.lsi.dad;
 
 public class Sensor {
 
-	private Integer valueId;
-	private Integer sensorId;
-	private Integer placaId;
+	private Integer idValue;
+	private Integer idSensor;
+	private Integer idPlaca;
 	private Double valor1;
 	private Double valor2;
 	private Integer tipoSensor;
 	private Long tiempo;
-	private Integer groupId;
+	private Integer idGroup;
 	
-	public Sensor(Integer valueId, Integer sensorId, Integer placaId, Double valor1, Double valor2, Integer tipoSensor,
-			Long tiempo, Integer groupId) {
+	public Sensor(Integer idValue, Integer idSensor, Integer idPlaca, Double valor1, Double valor2, Integer tipoSensor,
+			Long tiempo, Integer idGroup) {
 		super();
-		this.valueId = valueId;
-		this.sensorId = sensorId;
-		this.placaId = placaId;
+		this.idValue = idValue;
+		this.idSensor = idSensor;
+		this.idPlaca = idPlaca;
 		this.valor1 = valor1;
 		this.valor2 = valor2;
 		this.tipoSensor = tipoSensor;
 		this.tiempo = tiempo;
-		this.groupId = groupId;
+		this.idGroup = idGroup;
 	}
 
-	public Integer getValueId() {
-		return valueId;
+	public Integer getIdValue() {
+		return idValue;
 	}
 
-	public Integer getSensorId() {
-		return sensorId;
+	public Integer getIdSensor() {
+		return idSensor;
 	}
 
-	public Integer getPlacaId() {
-		return placaId;
+	public Integer getIdPlaca() {
+		return idPlaca;
 	}
 
 	public Double getValor1() {
@@ -52,8 +52,8 @@ public class Sensor {
 		return tiempo;
 	}
 
-	public Integer getGroupId() {
-		return groupId;
+	public Integer getIdGroup() {
+		return idGroup;
 	}
 	
 }

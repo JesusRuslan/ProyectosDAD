@@ -2,27 +2,27 @@ package es.us.lsi.dad;
 
 public class Placa {
 
-	private Integer valueId;
-	private Integer placaId;
-	private Integer groupId;
+	private Integer idValue;
+	private Integer idPlaca;
+	private Integer idGroup;
 	
-	public Placa(Integer valueId, Integer placaId, Integer groupId) {
+	public Placa(Integer idValue, Integer idPlaca, Integer idGroup) {
 		super();
-		this.valueId = valueId;
-		this.placaId = placaId;
-		this.groupId = groupId;
+		this.idValue = idValue;
+		this.idPlaca = idPlaca;
+		this.idGroup = idGroup;
 	}
 	
-	public Integer getValueId() {
-		return valueId;
+	public Integer getIdValue() {
+		return idValue;
 	}
 	
-	public Integer getPlacaId() {
-		return placaId;
+	public Integer getIdPlaca() {
+		return idPlaca;
 	}
 	
-	public Integer getGroupId() {
-		return groupId;
+	public Integer getIdGroup() {
+		return idGroup;
 	}
 	
 }

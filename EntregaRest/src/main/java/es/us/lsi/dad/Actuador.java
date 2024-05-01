@@ -1,40 +1,37 @@
 package es.us.lsi.dad;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Actuador {
 
-	private Integer valueId;
-	private Integer actuadorId;
-	private Integer placaId;
+	private Integer idValue;
+	private Integer idActuador;
+	private Integer idPlaca;
 	private Double valor;
 	private Integer tipoActuador;
 	private Long tiempo;
-	private Integer groupId;
+	private Integer idGroup;
 	
-	public Actuador(Integer valueId, Integer actuadorId, Integer placaId, Double valor, Integer tipoActuador,
-			Long tiempo, Integer groupId) {
+	public Actuador(Integer idValue, Integer idActuador, Integer idPlaca, Double valor, Integer tipoActuador,
+			Long tiempo, Integer idGroup) {
 		super();
-		this.valueId = valueId;
-		this.actuadorId = actuadorId;
-		this.placaId = placaId;
+		this.idValue = idValue;
+		this.idActuador = idActuador;
+		this.idPlaca = idPlaca;
 		this.valor = valor;
 		this.tipoActuador = tipoActuador;
 		this.tiempo = tiempo;
-		this.groupId = groupId;
+		this.idGroup = idGroup;
 	}
 
-	public Integer getValueId() {
-		return valueId;
+	public Integer getIdValue() {
+		return idValue;
 	}
 
-	public Integer getActuadorId() {
-		return actuadorId;
+	public Integer getIdActuador() {
+		return idActuador;
 	}
 
-	public Integer getPlacaId() {
-		return placaId;
+	public Integer getIdPlaca() {
+		return idPlaca;
 	}
 
 	public Double getValor() {
@@ -49,8 +46,8 @@ public class Actuador {
 		return tiempo;
 	}
 
-	public Integer getGroupId() {
-		return groupId;
+	public Integer getIdGroup() {
+		return idGroup;
 	}
 	
 }
