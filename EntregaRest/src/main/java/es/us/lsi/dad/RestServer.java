@@ -1,15 +1,22 @@
 package es.us.lsi.dad;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import io.netty.handler.codec.mqtt.MqttQoS;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
+import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.mqtt.MqttClient;
+import io.vertx.mqtt.MqttClientOptions;
 import io.vertx.mysqlclient.MySQLConnectOptions;
 import io.vertx.mysqlclient.MySQLPool;
 import io.vertx.sqlclient.PoolOptions;
@@ -24,13 +31,20 @@ public class RestServer extends AbstractVerticle {
 
 	@Override
 	public void start(Promise<Void> startFuture) {
-		// Creating some synthetic data
-		//		createSomeDataPlacas(3);
-		//		createSomeDataSensores(20);
-		//		createSomeDataActuadores(15);
 
 		// Instantiating a Gson serialize object using specific date format
 		gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+
+		// Conexión MQTT
+		MqttClient mqttClient = MqttClient.create(vertx, new MqttClientOptions().setAutoKeepAlive(true));
+		mqttClient.connect(1883, "localhost", s -> {
+
+			mqttClient.subscribe("topic_2", MqttQoS.AT_LEAST_ONCE.value(), handler -> {
+				if(handler.succeeded()) {
+					mqttClient.publish("Bienvenida", Buffer.buffer("RestServer"), MqttQoS.AT_LEAST_ONCE, false, false);
+				}
+			});
+		});
 
 		// Defining the router object
 		Router router = Router.router(vertx);
@@ -50,18 +64,18 @@ public class RestServer extends AbstractVerticle {
 		router.get("/api/placas").handler(this::getAllPlacas);
 		router.get("/api/placas/one").handler(this::getOnePlaca);
 		router.get("/api/placas/:id").handler(this::getPlacaById);
-		router.post("/api/placas").handler(this::addOnePlaca);
 		router.get("/api/placas/:id/sensores").handler(this::getSensoresPlaca);
 		router.get("/api/placas/:id/actuadores").handler(this::getActuadoresPlaca);
+		router.post("/api/placas").handler(this::addOnePlaca);
 
 		router.route("/api/sensores*").handler(BodyHandler.create());
 		router.get("/api/sensores").handler(this::getAllSensores);
 		router.get("/api/sensores/one").handler(this::getOneSensor);
 		router.get("/api/sensores/:id").handler(this::getSensorById);
-		router.post("/api/sensores").handler(this::addOneSensor);
 		router.get("/api/sensores/:id/values").handler(this::getValuesSensor);
 		router.get("/api/sensores/:id/last").handler(this::getLastValueSensor);
 		router.get("/api/sensores/:id/three").handler(this::getLastThreeValueSensor);
+		router.post("/api/sensores").handler(this::addOneSensor);
 
 		router.route("/api/actuadores*").handler(BodyHandler.create());
 		router.get("/api/actuadores").handler(this::getAllActuadores);
@@ -777,6 +791,8 @@ public class RestServer extends AbstractVerticle {
 				.setStatusCode(500).end("Error al conectar: " + connection.cause().toString());
 			}
 		});
+		
+		logicaSistema(idSensor);
 	}
 	private void addOneActuador(RoutingContext routingContext) {
 		final Actuador aux = gson.fromJson(routingContext.getBodyAsString(), Actuador.class);
@@ -815,4 +831,42 @@ public class RestServer extends AbstractVerticle {
 		});
 	}
 	
+	// LÓGICA DEL SISTEMA
+	// Tras añadir un sensor miramos si los 3 último tienen valor1>=30 || valor2 <=30
+	private void logicaSistema(int id) {
+		MqttClient mqttClient = MqttClient.create(vertx, new MqttClientOptions().setAutoKeepAlive(true));
+		mqttClient.connect(1883, "localhost", s -> {
+			mySqlClient.getConnection(connection -> {
+				if (connection.succeeded()) {
+					connection.result().preparedQuery(
+							"SELECT * FROM Sensores WHERE idSensor = ? ORDER BY idValue DESC LIMIT 3;",
+							Tuple.of(id),
+							res -> {
+								if (res.succeeded()) {
+									// Get the result set
+									RowSet<Row> resultSet = res.result();
+									List<Double> result = new ArrayList<>();
+									for (Row elem : resultSet) {
+										result.add(elem.getDouble("valor1"));
+										result.add(elem.getDouble("valor2"));
+										result.add(elem.getInteger("idGroup").doubleValue());
+									}
+									if (!result.isEmpty()) {
+										String topic = "Group_" + result.get(2).intValue();
+										if ((result.get(0)>=30 && result.get(3)>=30 && result.get(6)>=30) ||
+												(result.get(1)<30 && result.get(4)<30 && result.get(7)<30)) {
+											mqttClient.publish(topic, Buffer.buffer("1"), MqttQoS.AT_LEAST_ONCE, false, false);
+										} else if((result.get(0)<30 && result.get(3)<30 && result.get(6)<30) &&
+												(result.get(1)>=30 && result.get(4)>=30 && result.get(7)>=30)){
+											mqttClient.publish(topic, Buffer.buffer("0"), MqttQoS.AT_LEAST_ONCE, false, false);
+										}
+									}
+								}
+								connection.result().close();
+							});
+				}
+			});
+		});
+	}
+
 }
